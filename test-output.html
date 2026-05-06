@@ -1,0 +1,1268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Codebase Documentation</title>
+<style>
+
+/* Reset and base */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+  background: #0d1117;
+  color: #c9d1d9;
+  line-height: 1.5;
+  font-size: 14px;
+  overflow: hidden;
+  height: 100vh;
+}
+
+/* Header */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 20px;
+  background: #161b22;
+  border-bottom: 1px solid #30363d;
+  height: 56px;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.logo {
+  font-size: 18px;
+  font-weight: 600;
+  color: #c9d1d9;
+}
+
+.summary-badges {
+  display: flex;
+  gap: 8px;
+}
+
+.badge {
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  background: #21262d;
+  color: #8b949e;
+  border: 1px solid #30363d;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+}
+
+.search-box {
+  position: relative;
+  width: 300px;
+}
+
+.search-box input {
+  width: 100%;
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid #30363d;
+  background: #0d1117;
+  color: #c9d1d9;
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.search-box input:focus {
+  border-color: #58a6ff;
+}
+
+.search-results {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  max-height: 400px;
+  overflow-y: auto;
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 6px;
+  margin-top: 4px;
+  display: none;
+  z-index: 100;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+}
+
+.search-results.visible {
+  display: block;
+}
+
+.search-result-item {
+  padding: 8px 12px;
+  cursor: pointer;
+  border-bottom: 1px solid #30363d;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.search-result-item:hover {
+  background: #21262d;
+}
+
+.search-result-item:last-child {
+  border-bottom: none;
+}
+
+.search-result-kind {
+  font-size: 10px;
+  padding: 1px 4px;
+  border-radius: 3px;
+  background: #21262d;
+  color: #8b949e;
+  text-transform: uppercase;
+}
+
+.search-result-name {
+  font-weight: 500;
+}
+
+.search-result-path {
+  font-size: 12px;
+  color: #8b949e;
+}
+
+/* Layout */
+.layout {
+  display: flex;
+  height: calc(100vh - 56px - 32px);
+}
+
+/* Sidebar */
+.sidebar {
+  width: 280px;
+  min-width: 280px;
+  background: #161b22;
+  border-right: 1px solid #30363d;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.sidebar-header {
+  padding: 12px 16px;
+  border-bottom: 1px solid #30363d;
+}
+
+.sidebar-header h2 {
+  font-size: 14px;
+  font-weight: 600;
+  color: #8b949e;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.file-tree {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px 0;
+}
+
+.tree-item {
+  cursor: pointer;
+  user-select: none;
+}
+
+.tree-row {
+  display: flex;
+  align-items: center;
+  padding: 4px 12px;
+  gap: 4px;
+  font-size: 13px;
+}
+
+.tree-row:hover {
+  background: #21262d;
+}
+
+.tree-row.active {
+  background: #21262d;
+  color: #58a6ff;
+}
+
+.tree-toggle {
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  color: #8b949e;
+  transition: transform 0.15s;
+}
+
+.tree-toggle.expanded {
+  transform: rotate(90deg);
+}
+
+.tree-icon {
+  margin-right: 4px;
+  font-size: 14px;
+}
+
+.tree-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tree-children {
+  padding-left: 16px;
+}
+
+/* Main content */
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Tabs */
+.tabs {
+  display: flex;
+  gap: 0;
+  background: #161b22;
+  border-bottom: 1px solid #30363d;
+  padding: 0 16px;
+}
+
+.tab {
+  padding: 10px 16px;
+  background: none;
+  border: none;
+  color: #8b949e;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  border-bottom: 2px solid transparent;
+  transition: all 0.15s;
+}
+
+.tab:hover {
+  color: #c9d1d9;
+}
+
+.tab.active {
+  color: #58a6ff;
+  border-bottom-color: #58a6ff;
+}
+
+.tab-content {
+  display: none;
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+/* Module cards */
+.modules-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.module-card {
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: box-shadow 0.2s;
+}
+
+.module-card:hover {
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+.module-header {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  cursor: pointer;
+  gap: 12px;
+}
+
+.module-path {
+  flex: 1;
+  font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  font-size: 13px;
+  color: #58a6ff;
+}
+
+.module-lang {
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: #21262d;
+  color: #8b949e;
+  text-transform: uppercase;
+}
+
+.module-stats {
+  display: flex;
+  gap: 12px;
+  font-size: 12px;
+  color: #8b949e;
+}
+
+.module-body {
+  display: none;
+  padding: 0 16px 16px;
+  border-top: 1px solid #30363d;
+}
+
+.module-body.expanded {
+  display: block;
+}
+
+.module-section {
+  margin-top: 12px;
+}
+
+.module-section h4 {
+  font-size: 12px;
+  color: #8b949e;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.symbol-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.symbol-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  background: #21262d;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.symbol-chip:hover {
+  background: #30363d;
+}
+
+.symbol-chip .kind {
+  font-size: 10px;
+  color: #8b949e;
+  text-transform: uppercase;
+}
+
+.dep-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.dep-chip {
+  padding: 4px 8px;
+  background: #21262d;
+  border-radius: 4px;
+  font-size: 12px;
+  font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.dep-chip:hover {
+  background: #30363d;
+}
+
+/* Graph */
+.graph-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.graph-controls button {
+  padding: 6px 12px;
+  background: #21262d;
+  border: 1px solid #30363d;
+  border-radius: 6px;
+  color: #c9d1d9;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.graph-controls button:hover {
+  background: #30363d;
+}
+
+#graph-hint {
+  font-size: 12px;
+  color: #8b949e;
+}
+
+.graph-canvas {
+  width: 100%;
+  height: 600px;
+  border: 1px solid #30363d;
+  border-radius: 8px;
+  background: #161b22;
+  cursor: grab;
+}
+
+.graph-canvas:active {
+  cursor: grabbing;
+}
+
+.graph-tooltip {
+  position: absolute;
+  display: none;
+  padding: 12px;
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  max-width: 300px;
+  z-index: 50;
+  pointer-events: none;
+}
+
+.graph-tooltip.visible {
+  display: block;
+}
+
+/* Overview */
+.overview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 16px;
+}
+
+.overview-card {
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.overview-card h3 {
+  font-size: 14px;
+  margin-bottom: 12px;
+  color: #8b949e;
+}
+
+.lang-bar {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+  gap: 8px;
+}
+
+.lang-bar-label {
+  width: 80px;
+  font-size: 12px;
+  text-transform: capitalize;
+}
+
+.lang-bar-track {
+  flex: 1;
+  height: 20px;
+  background: #21262d;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.lang-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.5s ease;
+}
+
+.lang-bar-count {
+  width: 40px;
+  text-align: right;
+  font-size: 12px;
+  color: #8b949e;
+}
+
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+  border-bottom: 1px solid #30363d;
+  font-size: 13px;
+}
+
+.stat-row:last-child {
+  border-bottom: none;
+}
+
+.stat-label {
+  color: #8b949e;
+}
+
+.stat-value {
+  font-weight: 500;
+}
+
+/* Modal */
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.6);
+  z-index: 200;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal.visible {
+  display: flex;
+}
+
+.modal-content {
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 12px;
+  max-width: 800px;
+  max-height: 80vh;
+  width: 90%;
+  overflow: auto;
+  padding: 24px;
+  position: relative;
+}
+
+.modal-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #8b949e;
+  cursor: pointer;
+}
+
+.modal-close:hover {
+  color: #c9d1d9;
+}
+
+#modal-title {
+  margin-bottom: 12px;
+  padding-right: 40px;
+}
+
+#modal-body pre {
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 6px;
+  padding: 16px;
+  overflow-x: auto;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #30363d;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #8b949e;
+}
+
+/* No results */
+.no-results {
+  text-align: center;
+  padding: 40px;
+  color: #8b949e;
+}
+
+.no-results h3 {
+  margin-bottom: 8px;
+}
+
+/* Footer */
+.footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 20px;
+  background: #161b22;
+  border-top: 1px solid #30363d;
+  font-size: 11px;
+  color: #8b949e;
+}
+
+.footer span {
+  margin-right: 16px;
+}
+
+</style>
+</head>
+<body>
+<div id="app">
+  <header class="header">
+    <div class="header-left">
+      <h1 class="logo">📊 Codebase Docs</h1>
+      <div class="summary-badges">
+        <span class="badge" title="Total files">4 files</span>
+        <span class="badge" title="Modules">4 modules</span>
+        <span class="badge" title="Symbols">21 symbols</span>
+        <span class="badge" title="Dependencies">1 deps</span>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="search-box">
+        <input type="text" id="search" placeholder="Search symbols, files..." autocomplete="off">
+        <div id="search-results" class="search-results"></div>
+      </div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <h2>File Tree</h2>
+      </div>
+      <nav id="file-tree" class="file-tree">
+      </nav>
+    </aside>
+
+    <main class="main-content">
+      <div class="tabs">
+        <button class="tab active" data-tab="modules">Modules</button>
+        <button class="tab" data-tab="graph">Dependency Graph</button>
+        <button class="tab" data-tab="overview">Overview</button>
+      </div>
+
+      <div id="tab-modules" class="tab-content active">
+        <div id="modules-list" class="modules-list">
+        </div>
+      </div>
+
+      <div id="tab-graph" class="tab-content">
+        <div class="graph-controls">
+          <button id="reset-graph">Reset View</button>
+          <span id="graph-hint">Scroll to zoom, drag to pan, click nodes for details</span>
+        </div>
+        <canvas id="graph-canvas" class="graph-canvas"></canvas>
+        <div id="graph-tooltip" class="graph-tooltip"></div>
+      </div>
+
+      <div id="tab-overview" class="tab-content">
+        <div class="overview">
+          <h2>Architecture Overview</h2>
+          <div class="overview-grid">
+            <div class="overview-card">
+              <h3>Language Distribution</h3>
+              <div id="language-chart"></div>
+            </div>
+            <div class="overview-card">
+              <h3>Module Statistics</h3>
+              <div id="module-stats"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div id="code-modal" class="modal">
+    <div class="modal-content">
+      <button class="modal-close">&times;</button>
+      <h3 id="modal-title"></h3>
+      <div id="modal-body"></div>
+    </div>
+  </div>
+</div>
+  <footer class="footer">
+    <span>codebase-docs v1.0.0</span>
+    <span>Generated 2026-05-06 18:12:29 UTC</span>
+  </footer>
+
+<script>
+// Embedded data
+const DATA = {
+  modules: [{"path":"go/main.go","language":"go","symbols":[{"name":"Config","kind":"type","line":9,"endLine":13,"snippet":"type Config struct {\n\tName    string\n\tPort    int\n\tDebug   bool\n}","docComment":"Config holds application configuration"},{"name":"Server","kind":"type","line":16,"endLine":18,"snippet":"type Server struct {\n\tconfig Config\n}","docComment":"Server represents the HTTP server"},{"name":"NewServer","kind":"function","line":21,"endLine":23,"snippet":"func NewServer(config Config) *Server {\n\treturn &Server{config: config}\n}","docComment":"NewServer creates a new server instance"},{"name":"Start","kind":"function","line":26,"endLine":29,"snippet":"func (s *Server) Start() error {\n\tfmt.Printf(\"Starting server on port %d\\n\", s.config.Port)\n\treturn nil\n}","docComment":"Start starts the server"},{"name":"Stop","kind":"function","line":32,"endLine":35,"snippet":"func (s *Server) Stop() error {\n\tfmt.Println(\"Stopping server\")\n\treturn nil\n}","docComment":"Stop stops the server"},{"name":"DefaultPort","kind":"constant","line":37,"endLine":37,"snippet":"const DefaultPort = 8080"},{"name":"main","kind":"function","line":39,"endLine":50,"snippet":"func main() {\n\tconfig := Config{\n\t\tName:  \"app\",\n\t\tPort:  DefaultPort,\n\t\tDebug: false,\n\t}\n\n\tserver := NewServer(config)\n\tif err := server.Start(); err != nil {\n\t\tos.Exit(1)\n\t}\n}"}],"imports":[{"source":"fmt","importedNames":[],"isDefault":false,"isTypeOnly":false,"line":4},{"source":"os","importedNames":[],"isDefault":false,"isTypeOnly":false,"line":5}],"exports":[{"name":"Config","isDefault":false,"isType":true,"line":9},{"name":"Server","isDefault":false,"isType":true,"line":16},{"name":"NewServer","isDefault":false,"isType":false,"line":21},{"name":"Start","isDefault":false,"isType":false,"line":26},{"name":"Stop","isDefault":false,"isType":false,"line":32},{"name":"DefaultPort","isDefault":false,"isType":false,"line":37}]},{"path":"py/processor.py","language":"python","symbols":[{"name":"process_data","kind":"function","line":9,"endLine":16,"snippet":"def process_data(items: List[str]) -> Dict[str, int]:\n    \"\"\"Process a list of items and return counts.\"\"\"\n    counts = {}\n    for item in items:\n        counts[item] = counts.get(item, 0) + 1\n    return counts","docComment":"Process a list of items and return counts."},{"name":"DataProcessor","kind":"class","line":17,"endLine":32,"snippet":"class DataProcessor:\n    \"\"\"Handles data processing operations.\"\"\"\n\n    def __init__(self, config: dict):\n        self.config = config\n        self.results = []\n\n    def run(self, data: List[str]) -> Dict[str, int]:\n        \"\"\"Run the processing pipeline.\"\"\"\n        return process_data(data)\n\n    def get_results(self) -> List[Dict[str, int]]:\n        \"\"\"Return all processed results.\"\"\"\n        return self.results","docComment":"Handles data processing operations."},{"name":"__init__","kind":"function","line":20,"endLine":23,"snippet":"    def __init__(self, config: dict):\n        self.config = config\n        self.results = []"},{"name":"run","kind":"function","line":24,"endLine":27,"snippet":"    def run(self, data: List[str]) -> Dict[str, int]:\n        \"\"\"Run the processing pipeline.\"\"\"\n        return process_data(data)","docComment":"Run the processing pipeline."},{"name":"get_results","kind":"function","line":28,"endLine":32,"snippet":"    def get_results(self) -> List[Dict[str, int]]:\n        \"\"\"Return all processed results.\"\"\"\n        return self.results","docComment":"Return all processed results."},{"name":"MAX_BATCH_SIZE","kind":"constant","line":33,"endLine":34,"snippet":"MAX_BATCH_SIZE = 1000"},{"name":"__all__","kind":"variable","line":35,"endLine":36,"snippet":"__all__ = ['process_data', 'DataProcessor', 'MAX_BATCH_SIZE']"}],"imports":[{"source":"os","importedNames":["os"],"isDefault":false,"isTypeOnly":false,"line":5},{"source":"typing","importedNames":["List","Dict"],"isDefault":false,"isTypeOnly":false,"line":6}],"exports":[{"name":"process_data","isDefault":false,"isType":false,"line":35},{"name":"DataProcessor","isDefault":false,"isType":false,"line":35},{"name":"MAX_BATCH_SIZE","isDefault":false,"isType":false,"line":35}]},{"path":"ts/index.ts","language":"typescript","symbols":[{"name":"greet","kind":"function","line":3,"endLine":5,"snippet":"export function greet(name: string): string {\n  return `Hello, ${capitalize(name)}!`;\n}"},{"name":"processInput","kind":"function","line":7,"endLine":9,"snippet":"export function processInput(input: string): string {\n  return truncate(input, 50);\n}"},{"name":"VERSION","kind":"constant","line":11,"endLine":11,"snippet":"export const VERSION = '1.0.0';"}],"imports":[{"source":"./utils","importedNames":["capitalize","truncate","Formatter"],"isDefault":false,"isTypeOnly":false,"line":1}],"exports":[{"name":"greet","isDefault":false,"isType":false,"line":3},{"name":"processInput","isDefault":false,"isType":false,"line":7},{"name":"VERSION","isDefault":false,"isType":false,"line":11}]},{"path":"ts/utils.ts","language":"typescript","symbols":[{"name":"capitalize","kind":"function","line":5,"endLine":7,"snippet":"export function capitalize(str: string): string {\n  return str.charAt(0).toUpperCase() + str.slice(1);\n}"},{"name":"truncate","kind":"function","line":9,"endLine":12,"snippet":"export function truncate(str: string, maxLen: number): string {\n  if (str.length <= maxLen) return str;\n  return str.slice(0, maxLen) + '...';\n}"},{"name":"Config","kind":"interface","line":14,"endLine":18,"snippet":"export interface Config {\n  name: string;\n  maxItems: number;\n  debug: boolean;\n}"},{"name":"Formatter","kind":"class","line":20,"endLine":30,"snippet":"export class Formatter {\n  private config: Config;\n\n  constructor(config: Config) {\n    this.config = config;\n  }\n\n  format(input: string): string {\n    return capitalize(truncate(input, this.config.maxItems));\n  }\n}"}],"imports":[],"exports":[{"name":"capitalize","isDefault":false,"isType":false,"line":5},{"name":"truncate","isDefault":false,"isType":false,"line":9},{"name":"Config","isDefault":false,"isType":true,"line":14},{"name":"Formatter","isDefault":false,"isType":false,"line":20}]}],
+  fileTree: [{"name":"go","path":"go","children":[{"name":"main.go","path":"go/main.go","children":[],"isFile":true,"module":{"path":"go/main.go","language":"go","symbols":[{"name":"Config","kind":"type","line":9,"endLine":13,"snippet":"type Config struct {\n\tName    string\n\tPort    int\n\tDebug   bool\n}","docComment":"Config holds application configuration"},{"name":"Server","kind":"type","line":16,"endLine":18,"snippet":"type Server struct {\n\tconfig Config\n}","docComment":"Server represents the HTTP server"},{"name":"NewServer","kind":"function","line":21,"endLine":23,"snippet":"func NewServer(config Config) *Server {\n\treturn &Server{config: config}\n}","docComment":"NewServer creates a new server instance"},{"name":"Start","kind":"function","line":26,"endLine":29,"snippet":"func (s *Server) Start() error {\n\tfmt.Printf(\"Starting server on port %d\\n\", s.config.Port)\n\treturn nil\n}","docComment":"Start starts the server"},{"name":"Stop","kind":"function","line":32,"endLine":35,"snippet":"func (s *Server) Stop() error {\n\tfmt.Println(\"Stopping server\")\n\treturn nil\n}","docComment":"Stop stops the server"},{"name":"DefaultPort","kind":"constant","line":37,"endLine":37,"snippet":"const DefaultPort = 8080"},{"name":"main","kind":"function","line":39,"endLine":50,"snippet":"func main() {\n\tconfig := Config{\n\t\tName:  \"app\",\n\t\tPort:  DefaultPort,\n\t\tDebug: false,\n\t}\n\n\tserver := NewServer(config)\n\tif err := server.Start(); err != nil {\n\t\tos.Exit(1)\n\t}\n}"}],"imports":[{"source":"fmt","importedNames":[],"isDefault":false,"isTypeOnly":false,"line":4},{"source":"os","importedNames":[],"isDefault":false,"isTypeOnly":false,"line":5}],"exports":[{"name":"Config","isDefault":false,"isType":true,"line":9},{"name":"Server","isDefault":false,"isType":true,"line":16},{"name":"NewServer","isDefault":false,"isType":false,"line":21},{"name":"Start","isDefault":false,"isType":false,"line":26},{"name":"Stop","isDefault":false,"isType":false,"line":32},{"name":"DefaultPort","isDefault":false,"isType":false,"line":37}]}}],"isFile":false},{"name":"py","path":"py","children":[{"name":"processor.py","path":"py/processor.py","children":[],"isFile":true,"module":{"path":"py/processor.py","language":"python","symbols":[{"name":"process_data","kind":"function","line":9,"endLine":16,"snippet":"def process_data(items: List[str]) -> Dict[str, int]:\n    \"\"\"Process a list of items and return counts.\"\"\"\n    counts = {}\n    for item in items:\n        counts[item] = counts.get(item, 0) + 1\n    return counts","docComment":"Process a list of items and return counts."},{"name":"DataProcessor","kind":"class","line":17,"endLine":32,"snippet":"class DataProcessor:\n    \"\"\"Handles data processing operations.\"\"\"\n\n    def __init__(self, config: dict):\n        self.config = config\n        self.results = []\n\n    def run(self, data: List[str]) -> Dict[str, int]:\n        \"\"\"Run the processing pipeline.\"\"\"\n        return process_data(data)\n\n    def get_results(self) -> List[Dict[str, int]]:\n        \"\"\"Return all processed results.\"\"\"\n        return self.results","docComment":"Handles data processing operations."},{"name":"__init__","kind":"function","line":20,"endLine":23,"snippet":"    def __init__(self, config: dict):\n        self.config = config\n        self.results = []"},{"name":"run","kind":"function","line":24,"endLine":27,"snippet":"    def run(self, data: List[str]) -> Dict[str, int]:\n        \"\"\"Run the processing pipeline.\"\"\"\n        return process_data(data)","docComment":"Run the processing pipeline."},{"name":"get_results","kind":"function","line":28,"endLine":32,"snippet":"    def get_results(self) -> List[Dict[str, int]]:\n        \"\"\"Return all processed results.\"\"\"\n        return self.results","docComment":"Return all processed results."},{"name":"MAX_BATCH_SIZE","kind":"constant","line":33,"endLine":34,"snippet":"MAX_BATCH_SIZE = 1000"},{"name":"__all__","kind":"variable","line":35,"endLine":36,"snippet":"__all__ = ['process_data', 'DataProcessor', 'MAX_BATCH_SIZE']"}],"imports":[{"source":"os","importedNames":["os"],"isDefault":false,"isTypeOnly":false,"line":5},{"source":"typing","importedNames":["List","Dict"],"isDefault":false,"isTypeOnly":false,"line":6}],"exports":[{"name":"process_data","isDefault":false,"isType":false,"line":35},{"name":"DataProcessor","isDefault":false,"isType":false,"line":35},{"name":"MAX_BATCH_SIZE","isDefault":false,"isType":false,"line":35}]}}],"isFile":false},{"name":"ts","path":"ts","children":[{"name":"index.ts","path":"ts/index.ts","children":[],"isFile":true,"module":{"path":"ts/index.ts","language":"typescript","symbols":[{"name":"greet","kind":"function","line":3,"endLine":5,"snippet":"export function greet(name: string): string {\n  return `Hello, ${capitalize(name)}!`;\n}"},{"name":"processInput","kind":"function","line":7,"endLine":9,"snippet":"export function processInput(input: string): string {\n  return truncate(input, 50);\n}"},{"name":"VERSION","kind":"constant","line":11,"endLine":11,"snippet":"export const VERSION = '1.0.0';"}],"imports":[{"source":"./utils","importedNames":["capitalize","truncate","Formatter"],"isDefault":false,"isTypeOnly":false,"line":1}],"exports":[{"name":"greet","isDefault":false,"isType":false,"line":3},{"name":"processInput","isDefault":false,"isType":false,"line":7},{"name":"VERSION","isDefault":false,"isType":false,"line":11}]}},{"name":"utils.ts","path":"ts/utils.ts","children":[],"isFile":true,"module":{"path":"ts/utils.ts","language":"typescript","symbols":[{"name":"capitalize","kind":"function","line":5,"endLine":7,"snippet":"export function capitalize(str: string): string {\n  return str.charAt(0).toUpperCase() + str.slice(1);\n}"},{"name":"truncate","kind":"function","line":9,"endLine":12,"snippet":"export function truncate(str: string, maxLen: number): string {\n  if (str.length <= maxLen) return str;\n  return str.slice(0, maxLen) + '...';\n}"},{"name":"Config","kind":"interface","line":14,"endLine":18,"snippet":"export interface Config {\n  name: string;\n  maxItems: number;\n  debug: boolean;\n}"},{"name":"Formatter","kind":"class","line":20,"endLine":30,"snippet":"export class Formatter {\n  private config: Config;\n\n  constructor(config: Config) {\n    this.config = config;\n  }\n\n  format(input: string): string {\n    return capitalize(truncate(input, this.config.maxItems));\n  }\n}"}],"imports":[],"exports":[{"name":"capitalize","isDefault":false,"isType":false,"line":5},{"name":"truncate","isDefault":false,"isType":false,"line":9},{"name":"Config","isDefault":false,"isType":true,"line":14},{"name":"Formatter","isDefault":false,"isType":false,"line":20}]}}],"isFile":false}],
+  summary: {"totalFiles":4,"totalModules":4,"totalSymbols":21,"totalDependencies":1,"languages":{"go":1,"python":1,"typescript":2}},
+  graphNodes: [{"id":"go/main.go","label":"main","x":408.65768142138495,"y":219.8231565900153,"radius":8,"color":"#00add8","metrics":{"path":"go/main.go","symbolCount":7,"importCount":2,"exportCount":6,"dependencyCount":0,"dependentCount":0}},{"id":"py/processor.py","label":"processor","x":293.220660001349,"y":242.47133110381046,"radius":8,"color":"#3776ab","metrics":{"path":"py/processor.py","symbolCount":7,"importCount":2,"exportCount":3,"dependencyCount":0,"dependentCount":0}},{"id":"ts/index.ts","label":"index","x":434.24098949797536,"y":339.6486146617016,"radius":10,"color":"#3178c6","metrics":{"path":"ts/index.ts","symbolCount":3,"importCount":1,"exportCount":3,"dependencyCount":1,"dependentCount":0}},{"id":"ts/utils.ts","label":"utils","x":350.4661826526822,"y":343.1158020083782,"radius":10,"color":"#3178c6","metrics":{"path":"ts/utils.ts","symbolCount":4,"importCount":0,"exportCount":4,"dependencyCount":0,"dependentCount":1}}],
+  graphEdges: [{"from":"ts/index.ts","to":"ts/utils.ts","symbols":["capitalize","truncate","Formatter"]}],
+  metrics: [{"path":"go/main.go","symbolCount":7,"importCount":2,"exportCount":6,"dependencyCount":0,"dependentCount":0},{"path":"py/processor.py","symbolCount":7,"importCount":2,"exportCount":3,"dependencyCount":0,"dependentCount":0},{"path":"ts/index.ts","symbolCount":3,"importCount":1,"exportCount":3,"dependencyCount":1,"dependentCount":0},{"path":"ts/utils.ts","symbolCount":4,"importCount":0,"exportCount":4,"dependencyCount":0,"dependentCount":1}],
+};
+
+
+// ===== State =====
+let currentTab = 'modules';
+let searchTerm = '';
+let graphState = {
+  scale: 1,
+  offsetX: 0,
+  offsetY: 0,
+  isDragging: false,
+  dragStartX: 0,
+  dragStartY: 0,
+  dragOffsetX: 0,
+  dragOffsetY: 0,
+  hoveredNode: null,
+};
+
+// ===== Initialization =====
+document.addEventListener('DOMContentLoaded', () => {
+  renderFileTree(DATA.fileTree);
+  renderModules();
+  renderOverview();
+  initGraph();
+  initSearch();
+  initTabs();
+  initModal();
+});
+
+// ===== File Tree =====
+function renderFileTree(tree) {
+  const container = document.getElementById('file-tree');
+  container.innerHTML = renderTreeNode(tree, 0);
+  
+  // Add click handlers
+  container.querySelectorAll('.tree-toggle').forEach(el => {
+    el.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const children = el.parentElement.parentElement.querySelector('.tree-children');
+      if (children) {
+        const isExpanded = el.classList.contains('expanded');
+        el.classList.toggle('expanded');
+        children.style.display = isExpanded ? 'none' : 'block';
+      }
+    });
+    
+    container.querySelectorAll('.tree-row[data-module]').forEach(el => {
+      el.addEventListener('click', () => {
+        const modulePath = el.getAttribute('data-module');
+        showModuleDetail(modulePath);
+      });
+    });
+  });
+}
+
+function renderTreeNode(nodes, depth) {
+  if (!Array.isArray(nodes)) return '';
+  
+  let html = '';
+  for (const node of nodes) {
+    if (node.isFile) {
+      const hasModule = node.module && (node.module.symbols.length > 0 || node.module.exports.length > 0);
+      const icon = getFileIcon(node.name);
+      html += '<div class="tree-item">' +
+        '<div class="tree-row' + (hasModule ? '" data-module="' + node.path + '' : '">') +
+        '<span class="tree-toggle" style="visibility:hidden">▶</span>' +
+        '<span class="tree-icon">' + icon + '</span>' +
+        '<span class="tree-name">' + escapeHtml(node.name) + '</span>' +
+        '</div></div>';
+    } else {
+      const hasChildren = node.children && node.children.length > 0;
+      html += '<div class="tree-item">' +
+        '<div class="tree-row">' +
+        '<span class="tree-toggle' + (depth === 0 ? ' expanded' : '') + '">▶</span>' +
+        '<span class="tree-icon">📁</span>' +
+        '<span class="tree-name">' + escapeHtml(node.name) + '</span>' +
+        '</div>';
+      if (hasChildren) {
+        html += '<div class="tree-children" style="display:' + (depth === 0 ? 'block' : 'none') + '">' +
+          renderTreeNode(node.children, depth + 1) +
+          '</div>';
+      }
+      html += '</div>';
+    }
+  }
+  return html;
+}
+
+function getFileIcon(filename) {
+  const ext = filename.split('.').pop().toLowerCase();
+  const icons = {
+    ts: '🔷', tsx: '🔷', js: '📜', jsx: '📜',
+    py: '🐍', go: '🔵', rs: '🦀', java: '☕',
+    md: '📝', json: '📋', yaml: '📋', yml: '📋',
+  };
+  return icons[ext] || '📄';
+}
+
+function showModuleDetail(modulePath) {
+  const module = DATA.modules.find(m => m.path === modulePath);
+  if (!module) return;
+  
+  // Switch to modules tab and scroll to the card
+  switchTab('modules');
+  const card = document.querySelector('.module-card[data-path="' + modulePath + '"]');
+  if (card) {
+    card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    const body = card.querySelector('.module-body');
+    if (body) {
+      body.classList.toggle('expanded');
+      const toggle = card.querySelector('.module-header');
+      const arrow = toggle.querySelector('.arrow');
+      if (arrow) arrow.classList.toggle('expanded');
+    }
+  }
+}
+
+// ===== Modules =====
+function renderModules() {
+  const container = document.getElementById('modules-list');
+  
+  // Sort modules by path
+  const sorted = [...DATA.modules].sort((a, b) => a.path.localeCompare(b.path));
+  
+  if (sorted.length === 0) {
+    container.innerHTML = '<div class="no-results"><h3>No modules found</h3></div>';
+    return;
+  }
+  
+  let html = '';
+  for (const mod of sorted) {
+    const metrics = DATA.metrics.find(m => m.path === mod.path) || {};
+    
+    html += '<div class="module-card" data-path="' + escapeHtml(mod.path) + '">' +
+      '<div class="module-header" onclick="this.nextElementSibling.classList.toggle(\'expanded\'); this.querySelector(\'.arrow\').classList.toggle(\'expanded\')">' +
+      '<span class="arrow" style="margin-right:8px;font-size:10px">▶</span>' +
+      '<span class="module-path">' + escapeHtml(mod.path) + '</span>' +
+      '<span class="module-lang">' + escapeHtml(mod.language) + '</span>' +
+      '<div class="module-stats">' +
+      '<span>' + mod.symbols.length + ' symbols</span>' +
+      '<span>' + (metrics.dependencyCount || 0) + ' deps</span>' +
+      '<span>' + (metrics.dependentCount || 0) + ' dependents</span>' +
+      '</div>' +
+      '</div>' +
+      '<div class="module-body">';
+    
+    // Symbols
+    if (mod.symbols.length > 0) {
+      html += '<div class="module-section"><h4>Symbols</h4><div class="symbol-list">';
+      for (const sym of mod.symbols) {
+        html += '<span class="symbol-chip" onclick="showCodeSnippet(\'' + escapeHtml(mod.path) + '\', ' + sym.line + ')">' +
+          '<span class="kind">' + escapeHtml(sym.kind) + '</span>' +
+          '<span>' + escapeHtml(sym.name) + '</span>' +
+          '</span>';
+      }
+      html += '</div></div>';
+    }
+    
+    // Dependencies
+    const deps = DATA.graphEdges.filter(e => e.from === mod.path);
+    if (deps.length > 0) {
+      html += '<div class="module-section"><h4>Dependencies</h4><div class="dep-list">';
+      for (const dep of deps) {
+        const shortPath = dep.to.split('/').slice(-2).join('/');
+        html += '<span class="dep-chip" onclick="showModuleDetail(\'' + escapeHtml(dep.to) + '\')">' +
+          escapeHtml(shortPath) + '</span>';
+      }
+      html += '</div></div>';
+    }
+    
+    // Dependents
+    const dependents = DATA.graphEdges.filter(e => e.to === mod.path);
+    if (dependents.length > 0) {
+      html += '<div class="module-section"><h4>Dependents</h4><div class="dep-list">';
+      for (const dep of dependents) {
+        const shortPath = dep.from.split('/').slice(-2).join('/');
+        html += '<span class="dep-chip" onclick="showModuleDetail(\'' + escapeHtml(dep.from) + '\')">' +
+          escapeHtml(shortPath) + '</span>';
+      }
+      html += '</div></div>';
+    }
+    
+    html += '</div></div>';
+  }
+  
+  container.innerHTML = html;
+  
+  // Add arrow click handler
+  container.querySelectorAll('.module-header .arrow').forEach(arrow => {
+    arrow.classList.add('style-arrow');
+  });
+}
+
+function showCodeSnippet(modulePath, lineNum) {
+  const module = DATA.modules.find(m => m.path === modulePath);
+  if (!module) return;
+  
+  const symbol = module.symbols.find(s => s.line === lineNum);
+  if (!symbol) return;
+  
+  const modal = document.getElementById('code-modal');
+  document.getElementById('modal-title').textContent = symbol.name + ' (' + symbol.kind + ')';
+  
+  let body = '<p style="color:#8b949e;margin-bottom:12px">' + escapeHtml(modulePath) + ':L' + lineNum + '</p>';
+  
+  if (symbol.docComment) {
+    body += '<p style="margin-bottom:12px;font-style:italic;color:#8b949e">' + escapeHtml(symbol.docComment) + '</p>';
+  }
+  
+  body += '<pre><code>' + escapeHtml(symbol.snippet) + '</code></pre>';
+  
+  document.getElementById('modal-body').innerHTML = body;
+  modal.classList.add('visible');
+}
+
+// ===== Search =====
+function initSearch() {
+  const input = document.getElementById('search');
+  const results = document.getElementById('search-results');
+  
+  input.addEventListener('input', () => {
+    const term = input.value.trim().toLowerCase();
+    if (!term) {
+      results.classList.remove('visible');
+      return;
+    }
+    
+    const matches = [];
+    
+    for (const mod of DATA.modules) {
+      for (const sym of mod.symbols) {
+        if (sym.name.toLowerCase().includes(term) || mod.path.toLowerCase().includes(term)) {
+          matches.push({ module: mod, symbol: sym });
+          if (matches.length >= 50) break;
+        }
+      }
+      if (matches.length >= 50) break;
+    }
+    
+    if (matches.length === 0) {
+      results.innerHTML = '<div class="search-result-item"><span style="color:#8b949e">No results</span></div>';
+      results.classList.add('visible');
+      return;
+    }
+    
+    let html = '';
+    for (const match of matches) {
+      html += '<div class="search-result-item" onclick="showCodeSnippet(\'' + 
+        escapeHtml(match.module.path) + '\', ' + match.symbol.line + '); document.getElementById(\'search-results\').classList.remove(\'visible\');">' +
+        '<span class="search-result-kind">' + escapeHtml(match.symbol.kind) + '</span>' +
+        '<span class="search-result-name">' + escapeHtml(match.symbol.name) + '</span>' +
+        '<span class="search-result-path">' + escapeHtml(match.module.path) + '</span>' +
+        '</div>';
+    }
+    
+    results.innerHTML = html;
+    results.classList.add('visible');
+  });
+  
+  // Close results on outside click
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.search-box')) {
+      results.classList.remove('visible');
+    }
+  });
+}
+
+// ===== Tabs =====
+function initTabs() {
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      switchTab(tab.getAttribute('data-tab'));
+    });
+  });
+}
+
+function switchTab(tabName) {
+  currentTab = tabName;
+  
+  document.querySelectorAll('.tab').forEach(t => {
+    t.classList.toggle('active', t.getAttribute('data-tab') === tabName);
+  });
+  
+  document.querySelectorAll('.tab-content').forEach(tc => {
+    tc.classList.toggle('active', tc.id === 'tab-' + tabName);
+  });
+  
+  // Redraw graph when switching to graph tab
+  if (tabName === 'graph') {
+    drawGraph();
+  }
+}
+
+// ===== Modal =====
+function initModal() {
+  const modal = document.getElementById('code-modal');
+  const closeBtn = modal.querySelector('.modal-close');
+  
+  closeBtn.addEventListener('click', () => {
+    modal.classList.remove('visible');
+  });
+  
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) {
+      modal.classList.remove('visible');
+    }
+  });
+  
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      modal.classList.remove('visible');
+    }
+  });
+}
+
+// ===== Graph =====
+function initGraph() {
+  const canvas = document.getElementById('graph-canvas');
+  const ctx = canvas.getContext('2d');
+  
+  // Set canvas size
+  function resizeCanvas() {
+    const rect = canvas.getBoundingClientRect();
+    canvas.width = rect.width * window.devicePixelRatio;
+    canvas.height = rect.height * window.devicePixelRatio;
+    ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+    drawGraph();
+  }
+  
+  resizeCanvas();
+  window.addEventListener('resize', resizeCanvas);
+  
+  // Pan and zoom
+  canvas.addEventListener('mousedown', (e) => {
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    
+    // Check if clicking on a node
+    const node = getNodeAt(x, y);
+    if (node) {
+      showGraphTooltip(node, e.clientX, e.clientY);
+      return;
+    }
+    
+    graphState.isDragging = true;
+    graphState.dragStartX = e.clientX;
+    graphState.dragStartY = e.clientY;
+    graphState.dragOffsetX = graphState.offsetX;
+    graphState.dragOffsetY = graphState.offsetY;
+  });
+  
+  canvas.addEventListener('mousemove', (e) => {
+    if (graphState.isDragging) {
+      graphState.offsetX = graphState.dragOffsetX + (e.clientX - graphState.dragStartX);
+      graphState.offsetY = graphState.dragOffsetY + (e.clientY - graphState.dragStartY);
+      drawGraph();
+      return;
+    }
+    
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    
+    const node = getNodeAt(x, y);
+    if (node) {
+      canvas.style.cursor = 'pointer';
+      showGraphTooltip(node, e.clientX, e.clientY);
+    } else {
+      canvas.style.cursor = 'grab';
+      hideGraphTooltip();
+    }
+  });
+  
+  canvas.addEventListener('mouseup', () => {
+    graphState.isDragging = false;
+  });
+  
+  canvas.addEventListener('mouseleave', () => {
+    graphState.isDragging = false;
+    hideGraphTooltip();
+  });
+  
+  canvas.addEventListener('wheel', (e) => {
+    e.preventDefault();
+    const zoomFactor = e.deltaY > 0 ? 0.9 : 1.1;
+    graphState.scale = Math.max(0.1, Math.min(5, graphState.scale * zoomFactor));
+    drawGraph();
+  });
+  
+  document.getElementById('reset-graph').addEventListener('click', () => {
+    graphState.scale = 1;
+    graphState.offsetX = 0;
+    graphState.offsetY = 0;
+    drawGraph();
+  });
+}
+
+function drawGraph() {
+  const canvas = document.getElementById('graph-canvas');
+  const ctx = canvas.getContext('2d');
+  const width = canvas.width / window.devicePixelRatio;
+  const height = canvas.height / window.devicePixelRatio;
+  
+  ctx.clearRect(0, 0, width, height);
+  ctx.save();
+  ctx.translate(graphState.offsetX, graphState.offsetY);
+  ctx.scale(graphState.scale, graphState.scale);
+  
+  // Draw edges
+  for (const edge of DATA.graphEdges) {
+    const fromNode = DATA.graphNodes.find(n => n.id === edge.from);
+    const toNode = DATA.graphNodes.find(n => n.id === edge.to);
+    if (!fromNode || !toNode) continue;
+    
+    ctx.beginPath();
+    ctx.moveTo(fromNode.x, fromNode.y);
+    ctx.lineTo(toNode.x, toNode.y);
+    ctx.strokeStyle = 'rgba(139, 148, 158, 0.3)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  }
+  
+  // Draw nodes
+  for (const node of DATA.graphNodes) {
+    // Node circle
+    ctx.beginPath();
+    ctx.arc(node.x, node.y, node.radius, 0, Math.PI * 2);
+    ctx.fillStyle = node.color;
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    
+    // Node label
+    ctx.fillStyle = '#c9d1d9';
+    ctx.font = '11px -apple-system, BlinkMacSystemFont, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(node.label, node.x, node.y + node.radius + 14);
+  }
+  
+  ctx.restore();
+}
+
+function getNodeAt(x, y) {
+  const mx = (x - graphState.offsetX) / graphState.scale;
+  const my = (y - graphState.offsetY) / graphState.scale;
+  
+  for (const node of DATA.graphNodes) {
+    const dx = mx - node.x;
+    const dy = my - node.y;
+    if (dx * dx + dy * dy <= node.radius * node.radius) {
+      return node;
+    }
+  }
+  return null;
+}
+
+function showGraphTooltip(node, clientX, clientY) {
+  const tooltip = document.getElementById('graph-tooltip');
+  tooltip.innerHTML = '<strong>' + escapeHtml(node.label) + '</strong><br>' +
+    '<span style="color:#8b949e;font-size:12px">' + escapeHtml(node.id) + '</span><br>' +
+    '<span style="font-size:12px">Symbols: ' + node.metrics.symbolCount + 
+    ' | Deps: ' + node.metrics.dependencyCount + 
+    ' | Dependents: ' + node.metrics.dependentCount + '</span>';
+  tooltip.style.left = (clientX + 10) + 'px';
+  tooltip.style.top = (clientY + 10) + 'px';
+  tooltip.classList.add('visible');
+}
+
+function hideGraphTooltip() {
+  document.getElementById('graph-tooltip').classList.remove('visible');
+}
+
+// ===== Overview =====
+function renderOverview() {
+  renderLanguageChart();
+  renderModuleStats();
+}
+
+function renderLanguageChart() {
+  const container = document.getElementById('language-chart');
+  const langs = DATA.summary.languages;
+  const total = DATA.summary.totalFiles;
+  
+  const colors = {
+    typescript: '#3178c6', javascript: '#f7df1e', python: '#3776ab',
+    go: '#00add8', rust: '#dea584', java: '#b07219', unknown: '#888'
+  };
+  
+  let html = '';
+  for (const [lang, count] of Object.entries(langs)) {
+    const pct = (count / total * 100).toFixed(1);
+    html += '<div class="lang-bar">' +
+      '<span class="lang-bar-label">' + escapeHtml(lang) + '</span>' +
+      '<div class="lang-bar-track">' +
+      '<div class="lang-bar-fill" style="width:' + pct + '%;background:' + (colors[lang] || '#888') + '"></div>' +
+      '</div>' +
+      '<span class="lang-bar-count">' + count + '</span>' +
+      '</div>';
+  }
+  
+  container.innerHTML = html;
+}
+
+function renderModuleStats() {
+  const container = document.getElementById('module-stats');
+  
+  const totalSymbols = DATA.modules.reduce((sum, m) => sum + m.symbols.length, 0);
+  const totalImports = DATA.modules.reduce((sum, m) => sum + m.imports.length, 0);
+  const totalExports = DATA.modules.reduce((sum, m) => sum + m.exports.length, 0);
+  
+  // Find most connected modules
+  const sorted = [...DATA.metrics].sort((a, b) => (b.dependencyCount + b.dependentCount) - (a.dependencyCount + a.dependentCount));
+  const topConnected = sorted.slice(0, 5);
+  
+  let html = '<div class="stat-row"><span class="stat-label">Total symbols</span><span class="stat-value">' + totalSymbols + '</span></div>' +
+    '<div class="stat-row"><span class="stat-label">Total imports</span><span class="stat-value">' + totalImports + '</span></div>' +
+    '<div class="stat-row"><span class="stat-label">Total exports</span><span class="stat-value">' + totalExports + '</span></div>' +
+    '<div class="stat-row"><span class="stat-label">Total dependencies</span><span class="stat-value">' + DATA.summary.totalDependencies + '</span></div>';
+  
+  if (topConnected.length > 0) {
+    html += '<div style="margin-top:12px;color:#8b949e;font-size:12px;text-transform:uppercase">Most connected modules</div>';
+    for (const m of topConnected) {
+      const connections = m.dependencyCount + m.dependentCount;
+      html += '<div class="stat-row"><span class="stat-label" style="font-family:monospace;font-size:12px">' + 
+        escapeHtml(m.path.split('/').slice(-2).join('/')) + '</span>' +
+        '<span class="stat-value">' + connections + '</span></div>';
+    }
+  }
+  
+  container.innerHTML = html;
+}
+
+// ===== Utilities =====
+function escapeHtml(str) {
+  if (!str) return '';
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+</script>
+</body>
+</html>
